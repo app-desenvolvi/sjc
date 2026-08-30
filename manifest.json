@@ -1,0 +1,17 @@
+{
+  "short_name": "DesenvolVi",
+  "name": "DesenvolVi Portal do Aluno",
+  "icons": [
+    {
+      "src": "https://app-desenvolvi.github.io/app/Rede_DesenvolVi.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#101828",
+  "theme_color": "#9966FF",
+  "display": "standalone",
+  "orientation": "portrait"
+}
