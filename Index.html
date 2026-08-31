@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Portal DesenvolVi</title>
+  <title>Rede DesenvolVi</title>
 
   <!-- 🚀 Link para o manifesto PWA do seu próprio domínio -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#9966FF">
+  <meta name="theme-color" content="#FFFFFF">
   
   <!-- Ícones para compatibilidade iOS Safari -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="DesenvolVi">
-  <link rel="apple-touch-icon" href="https://app-desenvolvi.github.io/app/Rede_DesenvolVi.png">
+  <meta name="apple-mobile-web-app-title" content="AppDesenvolVi">
+  <link rel="apple-touch-icon" href="https://app-desenvolvi.github.io/app/FAVICON_Rede.png">
 
   <!-- Biblioteca de ícones simples -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -29,7 +29,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #101828;
+      background-color: #FFFFFF;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
@@ -183,7 +183,7 @@
   <iframe 
     id="app-iframe"
     class="app-iframe"
-    src="https://script.google.com/macros/s/SUA_DEPLOY_ID_AQUI/exec?unidade=CAMPINAS" 
+    src="https://script.google.com/macros/s/AKfycbytQm1L6r_0wrZM1mXiTO2HFM_DAfd2tDEF6h7OVxYS0xWfUG5j0y_zGVz-zOLyT1w-/exec?unidade=REDE" 
     allow="clipboard-write">
   </iframe>
 
@@ -195,8 +195,8 @@
   <!-- 📱 POPUP DE INSTALAÇÃO MULTI-PLATAFORMA -->
   <div id="pwa-modal" class="pwa-modal-overlay" onclick="fecharInstaladorPWA(event)">
     <div class="pwa-modal-box" onclick="event.stopPropagation()">
-      <img src="https://app-desenvolvi.github.io/app/Rede_DesenvolVi.png" alt="Logo DesenvolVi" class="pwa-logo">
-      <div class="pwa-title">Instalar o DesenvolVi</div>
+      <img src="https://app-desenvolvi.github.io/app/FAVICON_Rede.png" alt="Logo Rede DesenvolVi" class="pwa-logo">
+      <div class="pwa-title">Instalar o AppDesenvolVi</div>
       <p class="pwa-text">Fixe o aplicativo direto na tela inicial do seu celular para ter carregamento instantâneo, visual em tela cheia e performance otimizada!</p>
 
       <!-- Divisão Reativa Android -->
@@ -231,7 +231,7 @@
     </div>
   </div>
 
-  <script>
+<script>
     // --- 1. REGISTRO DO SERVICE WORKER NO SEU PRÓPRIO DOMÍNIO ---
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -244,6 +244,15 @@
     // --- 2. CONTROLE DO FLUXO DE INSTALAÇÃO ---
     var eventoInstalacaoNativa = null;
     var plataformaMovel = "FALLBACK";
+
+    // 🚀 DETECTA SE O APP JÁ ESTÁ INSTALADO OU RODANDO COMO PWA
+    function estaRodandoComoApp() {
+      var condicaoMedia = window.matchMedia('(display-mode: standalone)').matches;
+      var condicaoIos = navigator.standalone === true;
+      var condicaoStorage = localStorage.getItem('pwa_instalado') === 'true';
+      // 🚀 Sem persistência de fechar: O botão só some permanentemente se estiver instalado!
+      return condicaoMedia || condicaoIos || condicaoStorage;
+    }
 
     // Detecta o sistema operacional do usuário móvel
     function detectarDispositivo() {
@@ -259,21 +268,39 @@
 
     // Gerencia o botão flutuante com base na disponibilidade do sistema
     document.addEventListener("DOMContentLoaded", function() {
-      plataformaMovel = detectarDispositivo();
-      var btnInstall = document.getElementById("pwa-install-btn");
-
-      // 🍏 Se for iOS: Mostra o botão sempre (pois a Apple não dispara o evento nativo)
-      if (plataformaMovel === "IOS") {
-        if (btnInstall) btnInstall.style.display = "inline-flex";
+      // 🚀 SE JÁ INSTALADO: Aborta antes de mostrar o contêiner
+      if (estaRodandoComoApp()) {
+        localStorage.setItem('pwa_instalado', 'true');
+        console.log("⚡ DesenvolVi: PWA já instalado. Botão flutuante desativado.");
+        return; 
       }
 
-      // 🤖 Se for Android: Ouve o gatilho nativo disparado pelo navegador
+      plataformaMovel = detectarDispositivo();
+      var containerPwa = document.getElementById("pwa-container");
+
+      // [ IOS ] Se for iOS: Mostra o contêiner sempre (pois a Apple não possui o gatilho 'beforeinstallprompt')
+      if (plataformaMovel === "IOS") {
+        if (containerPwa) containerPwa.style.display = "flex";
+      }
+
+      // [ ANDROID ] Se for Android: Ouve o gatilho oficial do Google Chrome
       window.addEventListener("beforeinstallprompt", function(e) {
         e.preventDefault();
         eventoInstalacaoNativa = e;
-        if (btnInstall) btnInstall.style.display = "inline-flex";
+        if (containerPwa) containerPwa.style.display = "flex";
       });
     });
+
+    // ❌ OCULTA O BOTÃO APENAS PARA A VISITA ATUAL (REAPARECE AO CARREGAR NOVAMENTE)
+    function fecharBotaoFlutuantePermanente(e) {
+      if (e) e.preventDefault();
+      var containerPwa = document.getElementById("pwa-container");
+      if (containerPwa) {
+        containerPwa.style.display = "none";
+      }
+      // 🚀 Zero persistência física em disco! O estado reside estritamente na memória desta carga de página.
+      console.log("⚡ DesenvolVi: Botão ocultado temporariamente. Ele reaparecerá no próximo carregamento.");
+    }
 
     // Abre o Modal com os passos de instalação corretos de cada SO
     function abrirInstaladorPWA() {
@@ -299,7 +326,9 @@
         eventoInstalacaoNativa.prompt();
         eventoInstalacaoNativa.userChoice.then(function(choice) {
           if (choice.outcome === 'accepted') {
-            document.getElementById("pwa-install-btn").style.display = "none";
+            var containerPwa = document.getElementById("pwa-container");
+            if (containerPwa) containerPwa.style.display = "none";
+            localStorage.setItem('pwa_instalado', 'true'); // Memoriza a instalação com sucesso!
           }
           eventoInstalacaoNativa = null;
         });
@@ -313,11 +342,14 @@
       }
     }
 
-    // Oculta o botão se o app já estiver instalado
+    // Oculta o botão se o app for instalado com sucesso
     window.addEventListener("appinstalled", function() {
-      document.getElementById("pwa-install-btn").style.display = "none";
+      var containerPwa = document.getElementById("pwa-container");
+      if (containerPwa) containerPwa.style.display = "none";
+      localStorage.setItem('pwa_instalado', 'true'); // Salva síncronamente no navegador pai
       eventoInstalacaoNativa = null;
     });
   </script>
 </body>
 </html>
+
